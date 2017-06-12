@@ -1,15 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Twitch Status Viewer</title>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="style.css">
-  </head>
-  <body>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="script.js"></script>
-  </body>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Twitch Status Viewer</title>
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body class="container">
+  <div class="row col-md-6 col-md-offset-3">
+    <header class="text-center">
+      <h1>
+        <a href="https://www.twitch.tv/" target="_blank">
+          <img src="twitch-logo.svg" alt="Twitch logo" title="Twitch">
+        </a>
+        Status Viewer
+      </h1>
+      <div class="btn-group col-xs-12" data-toggle="buttons">
+        <label class="btn col-xs-4 active">
+          <input type="radio" name="search" value="all" checked>All
+        </label>
+        <label class="btn col-xs-4">
+          <input type="radio" name="search" value="online">Online
+        </label>
+        <label class="btn col-xs-4">
+          <input type="radio" name="search" value="offline">Offline
+        </label>
+      </div>
+      <div class="col-xs-12">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+          <input type="search" class="form-control" placeholder="Search...">
+        </div>
+      </div>
+    </header>
+    <main>
+    </main>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="script.js"></script>
+</body>
+
 </html>
