@@ -62,7 +62,8 @@ $(document).ready(function () {
     if (channelInformation.status === "closed") {
       addChannelInformationToDOM(channelInformation);
     } else {
-      $.getJSON(apiEndpoint + "/streams/" + channelInformation.id, streamRequestCallback);
+      $.getJSON(apiEndpoint + "/streams/" + channelInformation.id,
+        streamRequestCallback);
     }
 
     function streamRequestCallback(data) {
@@ -86,7 +87,8 @@ $(document).ready(function () {
 
   function addChannelInformationToDOM(channelInformation) {
     var a = "<a href='" + channelInformation.href + "' " +
-      "target='_blank' class='" + channelInformation.status + " clearfix'>" +
+      "target='_blank' class='" + channelInformation.status + " clearfix'" +
+      "id='" + channelInformation.id + "'>" +
       "<span class='col-xs-2 text-center'>" +
       "<img src='" + channelInformation.logo + "' class='img-circle' " +
       "alt='" + channelInformation.id + " logo' title='" +
@@ -106,8 +108,23 @@ $(document).ready(function () {
     $("main").append(a);
   }
 
-  //  $("input:radio").change(function (event) {
-  //    console.log(event.target.value);
-  //  });
+  $("header input[name=filter]").change(applySearchFilter);
+  $("header input[type='search']").keyup(applySearchFilter);
+
+  function applySearchFilter() {
+    var filter = $("header input[name=filter]:checked").val(),
+      searchTerm = $("header input[type='search']").val(),
+      channels = $("main a").show();
+    if (filter === "online") {
+      channels.not(".online").hide();
+    } else if (filter === "offline") {
+      channels.not(".offline, .closed").hide();
+    }
+    channels.filter(":visible").each(function () {
+      if (this.id.toLowerCase().indexOf(searchTerm) === -1) {
+        $(this).hide();
+      }
+    });
+  }
 
 });
