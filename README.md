@@ -6,4 +6,4 @@ This page is intended to be functionally similar to [this example page](https://
 A codepen of my page can be found [here](https://codepen.io/vanillaSlice/full/yXNOgp/).
 
 ## Screenshot
-TODO
+![screenshot](./screenshot.png)
