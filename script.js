@@ -113,7 +113,7 @@ $(document).ready(function () {
 
   applySearchFilters = function () {
     var filter = filterButtons.filter(":checked").val(),
-      searchTerm = searchBox.val(),
+      searchTerm = searchBox.val().toLowerCase(),
       channelLinks = $("main a").show();
 
     // apply button filters
