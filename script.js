@@ -1,9 +1,11 @@
+/*global $*/
+
 $(document).ready(function () {
 
   "use strict";
 
   var apiEndpoint = "https://wind-bow.glitch.me/twitch-api",
-    streamers = [
+    channels = [
       "freecodecamp",
       "ESL_SC2",
       "OgamingSC2",
@@ -15,20 +17,33 @@ $(document).ready(function () {
       "comster404",
       "noobs2ninjas"
     ],
-    missingLogoName = "missing-logo.png";
+    missingLogoName = "missing-logo.png",
+    i,
+    length,
+    id,
+    makeJSONRequest,
+    makeChannelRequest,
+    getChannelInformation,
+    getChannelErrorDescription,
+    makeStreamRequest,
+    addStreamInformation,
+    addToDOM,
+    applySearchFilters,
+    filterButtons = $("input[name=filter]"),
+    searchBox = $("input[type='search']");
 
-  streamers.forEach(makeChannelRequest);
+  makeJSONRequest = function (type, id, success) {
+    $.getJSON(apiEndpoint + "/" + type + "/" + id, success);
+  };
 
-  function makeChannelRequest(id) {
-    $.getJSON(apiEndpoint + "/channels/" + id, channelRequestCallback);
-
-    function channelRequestCallback(data) {
+  makeChannelRequest = function (id) {
+    makeJSONRequest("channels", id, function (data) {
       var channelInformation = getChannelInformation(id, data);
       makeStreamRequest(channelInformation);
-    }
-  }
+    });
+  };
 
-  function getChannelInformation(id, data) {
+  getChannelInformation = function (id, data) {
     var channelInformation = {
       id: id
     };
@@ -37,7 +52,7 @@ $(document).ready(function () {
       channelInformation.status = "closed";
       channelInformation.href = "#";
       channelInformation.logo = missingLogoName;
-      channelInformation.longDescription = getChannelErrorDescription(data);
+      channelInformation.longDescription = getChannelErrorDescription(data.status);
       channelInformation.shortDescription = channelInformation.longDescription;
     } else {
       channelInformation.href = data.url;
@@ -45,34 +60,30 @@ $(document).ready(function () {
     }
 
     return channelInformation;
-  }
+  };
 
-  function getChannelErrorDescription(data) {
-    switch (data.status) {
-      case 404:
-        return "Channel does not exist";
-      case 422:
-        return "Channel is unavailable";
-      default:
-        return "Could not retrieve channel information";
-    }
-  }
-
-  function makeStreamRequest(channelInformation) {
-    if (channelInformation.status === "closed") {
-      addChannelInformationToDOM(channelInformation);
+  getChannelErrorDescription = function (statusCode) {
+    if (statusCode === 404) {
+      return "Channel does not exist";
+    } else if (statusCode === 422) {
+      return "Channel is unavailable";
     } else {
-      $.getJSON(apiEndpoint + "/streams/" + channelInformation.id,
-        streamRequestCallback);
+      return "Could not retrieve channel information";
     }
+  };
 
-    function streamRequestCallback(data) {
-      addStreamInformation(data, channelInformation);
-      addChannelInformationToDOM(channelInformation);
+  makeStreamRequest = function (channelInformation) {
+    if (channelInformation.status === "closed") {
+      addToDOM(channelInformation);
+    } else {
+      makeJSONRequest("streams", channelInformation.id, function (data) {
+        addStreamInformation(data, channelInformation);
+        addToDOM(channelInformation);
+      });
     }
-  }
+  };
 
-  function addStreamInformation(data, channelInformation) {
+  addStreamInformation = function (data, channelInformation) {
     if (data.stream === null) {
       channelInformation.status = "offline";
       channelInformation.longDescription = "Offline";
@@ -80,51 +91,52 @@ $(document).ready(function () {
     } else {
       channelInformation.status = "online";
       channelInformation.shortDescription = data.stream.channel.game;
-      channelInformation.longDescription = channelInformation.shortDescription +
-        ": " + data.stream.channel.status;
+      channelInformation.longDescription = channelInformation.shortDescription + ": " + data.stream.channel.status;
     }
-  }
+  };
 
-  function addChannelInformationToDOM(channelInformation) {
-    var a = "<a href='" + channelInformation.href + "' " +
-      "target='_blank' class='" + channelInformation.status + " clearfix'" +
-      "id='" + channelInformation.id + "'>" +
+  addToDOM = function (channelInformation) {
+    var content = "<a href='" + channelInformation.href + "' target='_blank' class='" + channelInformation.status + " clearfix' id='" + channelInformation.id + "'>" +
       "<span class='col-xs-2 text-center'>" +
-      "<img src='" + channelInformation.logo + "' class='img-circle' " +
-      "alt='" + channelInformation.id + " logo' title='" +
-      channelInformation.id + "'>" +
+      "<img src='" + channelInformation.logo + "' class='img-circle' alt='" + channelInformation.id + " logo' title='" + channelInformation.id + "'>" +
       "</span>" +
       "<span class='col-xs-10'>" +
-      "<strong class='col-xs-12 col-sm-2 text-center'>" +
-      channelInformation.id + "</strong>" +
+      "<strong class='col-xs-12 col-sm-2 text-center'>" + channelInformation.id + "</strong>" +
       "<span class='col-xs-12 col-sm-9 col-sm-offset-1 text-center'>" +
-      "<span class='hidden-xs'>" + channelInformation.longDescription +
-      "</span>" +
-      "<span class='hidden-sm hidden-md hidden-lg'>" +
-      channelInformation.shortDescription + "</span>" +
+      "<span class='hidden-xs'>" + channelInformation.longDescription + "</span>" +
+      "<span class='hidden-sm hidden-md hidden-lg'>" + channelInformation.shortDescription + "</span>" +
       "</span>" +
       "</span>" +
       "</a>";
-    $("main").append(a);
-  }
+    $("main").append(content);
+  };
 
-  $("header input[name=filter]").change(applySearchFilter);
-  $("header input[type='search']").keyup(applySearchFilter);
+  applySearchFilters = function () {
+    var filter = filterButtons.filter(":checked").val(),
+      searchTerm = searchBox.val(),
+      channelLinks = $("main a").show();
 
-  function applySearchFilter() {
-    var filter = $("header input[name=filter]:checked").val(),
-      searchTerm = $("header input[type='search']").val(),
-      channels = $("main a").show();
+    // apply button filters
     if (filter === "online") {
-      channels.not(".online").hide();
+      channelLinks.not(".online").hide();
     } else if (filter === "offline") {
-      channels.not(".offline, .closed").hide();
+      channelLinks.not(".offline, .closed").hide();
     }
-    channels.filter(":visible").each(function () {
+
+    // apply search box filters
+    channelLinks.filter(":visible").each(function () {
       if (this.id.toLowerCase().indexOf(searchTerm) === -1) {
         $(this).hide();
       }
     });
+  };
+
+  filterButtons.change(applySearchFilters);
+  searchBox.keyup(applySearchFilters);
+
+  for (i = 0, length = channels.length; i < length; i += 1) {
+    id = channels[i];
+    makeChannelRequest(id);
   }
 
 });
