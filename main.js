@@ -96,17 +96,19 @@ $(document).ready(function () {
   };
 
   addToDOM = function (channelInformation) {
-    var content = "<a href='" + channelInformation.href + "' target='_blank' class='" + channelInformation.status + " clearfix' id='" + channelInformation.id + "'>" +
-      "<span class='col-xs-2 text-center'>" +
-      "<img src='" + channelInformation.logo + "' class='img-circle' alt='" + channelInformation.id + " logo' title='" + channelInformation.id + "'>" +
-      "</span>" +
-      "<span class='col-xs-10'>" +
-      "<strong class='col-xs-12 col-sm-2 text-center'>" + channelInformation.id + "</strong>" +
-      "<span class='col-xs-12 col-sm-9 col-sm-offset-1 text-center'>" +
-      "<span class='hidden-xs'>" + channelInformation.longDescription + "</span>" +
-      "<span class='hidden-sm hidden-md hidden-lg'>" + channelInformation.shortDescription + "</span>" +
-      "</span>" +
-      "</span>" +
+    var content = 
+    
+      "<a href='" + channelInformation.href + "' target='_blank' class='channel channel--" + channelInformation.status + " clearfix' id='" + channelInformation.id + "'>" +
+        "<span class='col-xs-12 col-sm-2 text-center'>" +
+          "<img src='" + channelInformation.logo + "' class='channel__img img-circle' alt='" + channelInformation.id + " logo' title='" + channelInformation.id + "'>" +
+        "</span>" +
+        "<span class='ellipsis col-sm-10'>" +
+          "<strong class='col-xs-12 col-sm-2 text-center'>" + channelInformation.id + "</strong>" +
+          "<span class='ellipsis col-xs-12 col-sm-9 col-sm-offset-1 text-center'>" +
+            "<span class='hidden-xs'>" + channelInformation.longDescription + "</span>" +
+            "<span class='hidden-sm hidden-md hidden-lg'>" + channelInformation.shortDescription + "</span>" +
+          "</span>" +
+        "</span>" +
       "</a>";
     $("main").append(content);
   };
