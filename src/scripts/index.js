@@ -1,5 +1,9 @@
 import missingLogo from '../images/missing-logo.png';
 
+/*
+ * Constants
+ */
+
 const apiEndpoint = 'https://wind-bow.glitch.me/twitch-api';
 const channels = [
   'brunofin',
@@ -13,44 +17,28 @@ const channels = [
   'RobotCaleb',
   'storbeck',
 ];
-const searchInputElement = $('.header__search-input');
-const filterBtnElements = $('.header__filter');
-const channelsElement = $('.channels');
 
-function makeJSONRequest(type, id, success) {
-  $.getJSON(`${apiEndpoint}/${type}/${id}`, success);
-}
+/*
+ * DOM Elements
+ */
 
-function getChannelErrorDescription(statusCode) {
-  if (statusCode === 404) {
-    return 'Channel does not exist';
-  }
-  if (statusCode === 422) {
-    return 'Channel is unavailable';
-  }
-  return 'Could not retrieve channel information';
-}
+const searchTermElement = $('.js-search-term');
+const statusFilterElements = $('.js-status-filter');
+const channelsElement = $('.js-channels');
 
-function getChannelInformation(id, data) {
-  const channelInformation = { id };
+/*
+ * Functions
+ */
 
-  if ('error' in data) {
-    channelInformation.status = 'closed';
-    channelInformation.href = '#';
-    channelInformation.logo = missingLogo;
-    channelInformation.longDescription = getChannelErrorDescription(data.status);
-    channelInformation.shortDescription = channelInformation.longDescription;
-  } else {
-    channelInformation.href = data.url;
-    channelInformation.logo = data.logo || missingLogo;
-  }
-
-  return channelInformation;
+function makeTwitchRequest(type, id, success, error) {
+  $.getJSON(`${apiEndpoint}/${type}/${id}`)
+    .done(success)
+    .fail(error);
 }
 
 function addToDOM(channelInformation) {
-  channelsElement.append(
-    `<a href="${channelInformation.href}" target="_blank" class="channel channel--${channelInformation.status} clearfix" id="${channelInformation.id}">`
+  channelsElement.prepend(
+    `<a href="${channelInformation.href}" class="channel channel--${channelInformation.status} clearfix js-channel js-${channelInformation.status}" id="${channelInformation.id}">`
     + '<div class="col-xs-12 col-sm-2 text-center">'
     + `<img src="${channelInformation.logo}" class="channel__img img-circle" alt="${channelInformation.id} logo" title="${channelInformation.id}">`
     + '</div>'
@@ -65,62 +53,113 @@ function addToDOM(channelInformation) {
   );
 }
 
-function addStreamInformation(data, channelInformation) {
-  const withStreamInformation = Object.assign({}, channelInformation);
+function addStreamInformation(channelInformation, res) {
+  const channelAndStreamInformation = Object.assign({}, channelInformation);
 
-  if (data.stream === null) {
-    withStreamInformation.status = 'offline';
-    withStreamInformation.longDescription = 'Offline';
-    withStreamInformation.shortDescription = channelInformation.longDescription;
+  if (!res.stream) {
+    channelAndStreamInformation.status = 'offline';
+    channelAndStreamInformation.longDescription = 'Offline';
+    channelAndStreamInformation.shortDescription = 'Offline';
   } else {
-    withStreamInformation.status = 'online';
-    withStreamInformation.shortDescription = data.stream.channel.game;
-    withStreamInformation.longDescription = `${withStreamInformation.shortDescription}: ${data.stream.channel.status}`;
+    channelAndStreamInformation.status = 'online';
+    channelAndStreamInformation.longDescription = `${res.stream.channel.game}: ${res.stream.channel.status}`;
+    channelAndStreamInformation.shortDescription = res.stream.channel.game;
   }
 
-  return withStreamInformation;
+  return channelAndStreamInformation;
+}
+
+function handleGetStream(channelInformation) {
+  return res => addToDOM(addStreamInformation(channelInformation, res));
 }
 
 function makeStreamRequest(channelInformation) {
-  if (channelInformation.status === 'closed') {
-    addToDOM(channelInformation);
-  } else {
-    makeJSONRequest('streams', channelInformation.id, (data) => {
-      const withStreamInformation = addStreamInformation(data, channelInformation);
-      addToDOM(withStreamInformation);
-    });
+  makeTwitchRequest(
+    'streams',
+    channelInformation.id,
+    handleGetStream(channelInformation),
+  );
+}
+
+function getOpenChannelInformation(channel, res) {
+  return {
+    id: channel,
+    href: res.url,
+    logo: res.logo || missingLogo,
+  };
+}
+
+function handleGetChannelSuccess(channel) {
+  return res => makeStreamRequest(getOpenChannelInformation(channel, res));
+}
+
+function getClosedChannelDescription(status) {
+  if (status === 404) {
+    return 'Channel does not exist';
+  }
+  if (status === 422) {
+    return 'Channel is unavailable';
+  }
+  return 'Could not retrieve channel information';
+}
+
+function getClosedChannelInformation(channel, err) {
+  const description = getClosedChannelDescription(err.status);
+
+  return {
+    id: channel,
+    status: 'closed',
+    href: '#',
+    logo: missingLogo,
+    longDescription: description,
+    shortDescription: description,
+  };
+}
+
+function handleGetChannelError(channel) {
+  return err => addToDOM(getClosedChannelInformation(channel, err.responseJSON));
+}
+
+function makeChannelRequest(channel) {
+  makeTwitchRequest(
+    'channels',
+    channel,
+    handleGetChannelSuccess(channel),
+    handleGetChannelError(channel),
+  );
+}
+
+function applyStatusFilter(channelLinks) {
+  const statusFilter = statusFilterElements.filter(':checked').val();
+
+  if (statusFilter === 'online') {
+    channelLinks.not('.js-online').hide();
+  } else if (statusFilter === 'offline') {
+    channelLinks.not('.js-offline, .js-closed').hide();
   }
 }
 
-function makeChannelRequest(id) {
-  makeJSONRequest('channels', id, (data) => {
-    makeStreamRequest(getChannelInformation(id, data));
-  });
-}
+function applySearchTermFilter(channelLinks) {
+  const searchTerm = searchTermElement.val().toLowerCase();
 
-function applySearchFilters() {
-  const filter = filterBtnElements.filter(':checked').val();
-  const searchTerm = searchInputElement.val().toLowerCase();
-  const channelLinks = $('.channel').show();
-
-  // apply button filters
-  if (filter === 'online') {
-    channelLinks.not('.channel--online').hide();
-  } else if (filter === 'offline') {
-    channelLinks.not('.channel--offline, .channel--closed').hide();
-  }
-
-  // apply search box filters
   channelLinks.filter(':visible').each((_, e) => {
-    if (e.id.toLowerCase().indexOf(searchTerm) === -1) {
+    if (!e.id.toLowerCase().includes(searchTerm)) {
       $(e).hide();
     }
   });
 }
 
-filterBtnElements.change(applySearchFilters);
-searchInputElement.keyup(applySearchFilters);
+function applyFilters() {
+  const channelLinks = $('.js-channel');
+  channelLinks.show();
+  applyStatusFilter(channelLinks);
+  applySearchTermFilter(channelLinks);
+}
 
-channels.forEach((channel) => {
-  makeChannelRequest(channel);
-});
+/*
+ * Initialise
+ */
+
+statusFilterElements.change(applyFilters);
+searchTermElement.keyup(applyFilters);
+channels.forEach(channel => makeChannelRequest(channel));

@@ -26,19 +26,19 @@
   <div class="row col-md-8 col-md-offset-2">
     <header class="text-center header">
       <h1 class="header__heading">
-        <a class="header__heading-link" href="https://www.twitch.tv/" target="_blank">
+        <a class="header__heading-link" href="https://www.twitch.tv/">
           <img class="header__logo" src="./images/twitch-logo.svg" alt="Twitch logo" title="Twitch">
         </a> Status&nbsp;Viewer
       </h1>
       <div class="header__btn-group btn-group col-xs-12" data-toggle="buttons">
         <label class="header__btn btn col-xs-4 active">
-          <input class="header__filter" type="radio" name="filter" value="all" checked>All
+          <input class="header__filter js-status-filter" type="radio" name="filter" value="all" checked>All
         </label>
         <label class="header__btn btn col-xs-4">
-          <input class="header__filter" type="radio" name="filter" value="online">Online
+          <input class="header__filter js-status-filter" type="radio" name="filter" value="online">Online
         </label>
         <label class="header__btn btn col-xs-4">
-          <input class="header__filter" type="radio" name="filter" value="offline">Offline
+          <input class="header__filter js-status-filter" type="radio" name="filter" value="offline">Offline
         </label>
       </div>
       <div class="col-xs-12">
@@ -46,11 +46,11 @@
           <span class="header__search-input-addon input-group-addon">
             <i class="glyphicon glyphicon-search" aria-hidden="true"></i>
           </span>
-          <input type="search" class="header__search-input form-control" placeholder="Search...">
+          <input type="search" class="header__search-input form-control js-search-term" placeholder="Search...">
         </div>
       </div>
     </header>
-    <main class="col-xs-12 channels"></main>
+    <main class="col-xs-12 channels js-channels"></main>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
