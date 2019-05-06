@@ -7,7 +7,7 @@
 *Intermediate Front End Development Project for FreeCodeCamp.*
 
 A simple [Twitch](https://www.twitch.tv/) status viewer.
-A deployed version can be viewed [here](https://vanillaslice.github.io/TwitchStatusViewer/).
+A deployed version can be viewed [here](https://twitch.mikelowe.xyz/).
 
 ## Screenshot
 
