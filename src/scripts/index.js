@@ -1,4 +1,5 @@
 import missingLogo from '../images/missing-logo.png';
+import { version } from '../../package.json';
 
 /*
  * Constants
@@ -25,6 +26,7 @@ const channels = [
 const searchTermElement = $('.js-search-term');
 const statusFilterElements = $('.js-status-filter');
 const channelsElement = $('.js-channels');
+const versionElement = $('.js-version');
 
 /*
  * Functions
@@ -163,3 +165,4 @@ function applyFilters() {
 statusFilterElements.change(applyFilters);
 searchTermElement.keyup(applyFilters);
 channels.forEach(channel => makeChannelRequest(channel));
+versionElement.text(version);
