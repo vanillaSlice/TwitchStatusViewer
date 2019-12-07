@@ -1,7 +1,7 @@
 # Twitch Status Viewer
 
 [![Latest Release](https://img.shields.io/github/release/vanillaSlice/TwitchStatusViewer.svg)](https://github.com/vanillaSlice/TwitchStatusViewer/releases/latest)
-[![Build Status](https://img.shields.io/travis/vanillaSlice/TwitchStatusViewer/master.svg)](https://travis-ci.org/vanillaSlice/TwitchStatusViewer)
+[![Build Status](https://img.shields.io/travis/com/vanillaSlice/TwitchStatusViewer/master.svg)](https://travis-ci.com/vanillaSlice/TwitchStatusViewer)
 [![License](https://img.shields.io/github/license/vanillaSlice/TwitchStatusViewer.svg)](LICENSE)
 
 *Intermediate Front End Development Project for FreeCodeCamp.*
