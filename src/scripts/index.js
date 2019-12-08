@@ -10,7 +10,6 @@ const channels = [
   'brunofin',
   'comster404',
   'cretetion',
-  'ESL_SC2',
   'freecodecamp',
   'habathcx',
   'noobs2ninjas',
